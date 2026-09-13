@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Law Firm Help Desk</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f9fafb;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      color: #1f2937;
+    }
+
+    .helpdesk {
+      display: flex;
+      gap: 20px;
+      height: 600px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar {
+      width: 200px;
+      background: #f3f4f6;
+      padding: 20px;
+      border-right: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .agent-btn {
+      padding: 12px;
+      border: 1px solid #e5e7eb;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .agent-btn:hover {
+      background: #f9fafb;
+    }
+
+    .agent-btn.active {
+      border: 2px solid #3b82f6;
+      background: #eff6ff;
+    }
+
+    .chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 6px;
+      max-width: 80%;
+      word-wrap: break-word;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+        .message.assistant {
+      background: #f3f4f6;
+      color: #1f2937;
+      align-self: flex-start;
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    .message.assistant h1,
+    .message.assistant h2,
+    .message.assistant h3 {
+      margin: 12px 0 8px 0;
+      font-weight: 600;
+      font-size: 1em;
+    }
+
+    .message.assistant h1 { font-size: 1.2em; }
+    .message.assistant h2 { font-size: 1.1em; }
+    .message.assistant h3 { font-size: 1em; }
+
+    .message.assistant p {
+      margin: 8px 0;
+      line-height: 1.6;
+    }
+
+    .message.assistant strong {
+      font-weight: 600;
+      color: #000;
+    }
+
+    .message.assistant em {
+      font-style: italic;
+    }
+
+    .message.assistant code {
+      background: #e5e7eb;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+    }
+
+    .message.assistant pre {
+      background: #e5e7eb;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 8px 0;
+      overflow-x: auto;
+    }
+
+    .message.assistant blockquote {
+      border-left: 3px solid #3b82f6;
+      padding-left: 12px;
+      margin: 8px 0;
+      color: #4b5563;
+    }
+
+    .message.assistant ul,
+    .message.assistant ol {
+      margin-left: 20px;
+      margin: 8px 0;
+    }
+
+    .message.assistant li {
+      margin: 4px 0;
+    }
+
+    .message.assistant table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 8px 0;
+      font-size: 0.9em;
+    }
+
+    .message.assistant table th,
+    .message.assistant table td {
+      border: 1px solid #d1d5db;
+      padding: 8px;
+      text-align: left;
+    }
+
+    .message.assistant table th {
+      background: #e5e7eb;
+      font-weight: 600;
+    }
+
+    .message.assistant a {
+      color: #3b82f6;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .message.assistant {
+      background: #f3f4f6;
+      color: #1f2937;
+      align-self: flex-start;
+    }
+
+    .message.loading {
+      color: #6b7280;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+    }
+
+    #input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    #input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    #send {
+      padding: 10px 20px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    #send:hover:not(:disabled) {
+      background: #2563eb;
+    }
+
+    #send:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .agent-label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚖️ Law Firm Help Desk</h1>
+
+    <div class="helpdesk">
+      <div class="sidebar">
+        <div class="agent-label">Select Agent</div>
+        <button class="agent-btn active" data-agent="general">
+          🛠 Technical Support
+        </button>
+        <button class="agent-btn" data-agent="legal">
+          📋 Legal Specialist
+        </button>
+      </div>
+
+      <div class="chat">
+        <div class="messages" id="messages">
+          <div class="message assistant">
+            Hi! I'm your Technical Support Agent. I can help with Mac issues, Microsoft 365, Slack, OneDrive, and other technical questions. What can I help you with today?
+          </div>
+        </div>
+
+        <div class="input-area">
+          <input
+            id="input"
+            type="text"
+            placeholder="Ask for help..."
+            autocomplete="off"
+          />
+          <button id="send">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentAgent = "general";
+    let conversationId = Math.random().toString(36).substr(2, 9);
+    const messagesEl = document.getElementById("messages");
+    const inputEl = document.getElementById("input");
+    const sendBtn = document.getElementById("send");
+
+    // Agent switching
+    document.querySelectorAll(".agent-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".agent-btn").forEach((b) => {
+          b.classList.remove("active");
+        });
+        btn.classList.add("active");
+        currentAgent = btn.dataset.agent;
+        messagesEl.innerHTML = "";
+        conversationId = Math.random().toString(36).substr(2, 9);
+
+        const welcomeMsg = document.createElement("div");
+        welcomeMsg.className = "message assistant";
+        welcomeMsg.textContent =
+          currentAgent === "general"
+            ? "Hi! I'm your Technical Support Agent. I can help with Mac issues, Microsoft 365, Slack, OneDrive, and other technical questions."
+            : "Hi! I'm your Legal Specialist. I can help with Clio, compliance, policies, and best practices for your law firm.";
+        messagesEl.appendChild(welcomeMsg);
+      });
+    });
+
+    // Send message function
+    async function sendMessage() {
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      // Add user message
+      const userMsg = document.createElement("div");
+      userMsg.className = "message user";
+      userMsg.textContent = text;
+      messagesEl.appendChild(userMsg);
+
+      inputEl.value = "";
+      sendBtn.disabled = true;
+
+      // Scroll to bottom
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      try {
+        // Add loading indicator
+        const loadingMsg = document.createElement("div");
+        loadingMsg.className = "message assistant loading";
+        loadingMsg.textContent = "Thinking...";
+        loadingMsg.id = "loading";
+        messagesEl.appendChild(loadingMsg);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+
+        // Call API
+        const response = await fetch("/api/message", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            agent: currentAgent,
+            message: text,
+            conversationId,
+          }),
+        });
+
+        const data = await response.json();
+
+        // Remove loading indicator
+        loadingMsg.remove();
+
+        if (data.success) {
+          const botMsg = document.createElement("div");
+          botMsg.className = "message assistant";
+          botMsg.innerHTML = marked.parse(data.response);
+          messagesEl.appendChild(botMsg);
+        } else {
+          const errorMsg = document.createElement("div");
+          errorMsg.className = "message assistant";
+          errorMsg.textContent = "Error: " + data.error;
+          messagesEl.appendChild(errorMsg);
+        }
+      } catch (error) {
+        const errorMsg = document.createElement("div");
+        errorMsg.className = "message assistant";
+        errorMsg.textContent = "Connection error: " + error.message;
+        messagesEl.appendChild(errorMsg);
+      }
+
+      sendBtn.disabled = false;
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+      inputEl.focus();
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    inputEl.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
+
+    inputEl.focus();
+  </script>
+</body>
+</html>

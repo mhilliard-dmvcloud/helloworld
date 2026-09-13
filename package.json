@@ -1,0 +1,21 @@
+{
+  "name": "law-firm-helpdesk",
+  "version": "1.0.0",
+  "description": "Two-agent AI help desk for law firms",
+  "main": "server/api.js",
+  "scripts": {
+    "start": "node server/api.js",
+    "dev": "nodemon server/api.js",
+    "test": "node test_api.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.125.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "marked": "^18.0.13"
+  }
+}
