@@ -6,7 +6,14 @@ require("dotenv").config();
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static("public"));
+
+// Serve static files from public directory
+app.use(express.static(__dirname + "/../public"));
+
+// Serve index.html for root path
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/../public/index.html");
+});
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
